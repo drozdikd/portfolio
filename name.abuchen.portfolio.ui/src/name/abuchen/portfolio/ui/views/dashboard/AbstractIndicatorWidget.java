@@ -1,5 +1,7 @@
 package name.abuchen.portfolio.ui.views.dashboard;
 
+import java.util.function.Predicate;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -11,6 +13,7 @@ import name.abuchen.portfolio.model.Dashboard.Widget;
 import name.abuchen.portfolio.ui.UIConstants;
 import name.abuchen.portfolio.ui.util.Colors;
 import name.abuchen.portfolio.ui.util.swt.ColoredLabel;
+import name.abuchen.portfolio.ui.views.dataseries.DataSeries;
 import name.abuchen.portfolio.util.TextUtil;
 
 public abstract class AbstractIndicatorWidget<D> extends WidgetDelegate<D>
@@ -18,11 +21,12 @@ public abstract class AbstractIndicatorWidget<D> extends WidgetDelegate<D>
     protected Label title;
     protected ColoredLabel indicator;
 
-    protected AbstractIndicatorWidget(Widget widget, DashboardData dashboardData, boolean supportsBenchmarks)
+    protected AbstractIndicatorWidget(Widget widget, DashboardData dashboardData, boolean supportsBenchmarks,
+                    Predicate<DataSeries> predicate)
     {
         super(widget, dashboardData);
 
-        addConfig(new DataSeriesConfig(this, supportsBenchmarks));
+        addConfig(new DataSeriesConfig(this, supportsBenchmarks, predicate));
         addConfig(new ReportingPeriodConfig(this));
     }
 
@@ -31,11 +35,13 @@ public abstract class AbstractIndicatorWidget<D> extends WidgetDelegate<D>
     {
         Composite container = new Composite(parent, SWT.NONE);
         container.setBackground(parent.getBackground());
+        container.setData(UIConstants.CSS.CLASS_NAME, this.getContainerCssClassNames());
         GridLayoutFactory.fillDefaults().numColumns(1).margins(5, 5).applyTo(container);
 
         title = new Label(container, SWT.NONE);
         title.setText(TextUtil.tooltip(getWidget().getLabel()));
         title.setBackground(Colors.theme().defaultBackground());
+        title.setData(UIConstants.CSS.CLASS_NAME, UIConstants.CSS.TITLE);
         GridDataFactory.fillDefaults().grab(true, false).applyTo(title);
 
         indicator = new ColoredLabel(container, SWT.NONE);
